@@ -1,8 +1,17 @@
 import numpy as np
 
+from nltk import tokenize
+from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
 class Similarity_Analyser():
     def __init__(self, gloveFile):
         self.model = loadGloveModel(gloveFile)
+        nltk.download('stopwords')
+        nltk.download('wordnet')
+        self.wordnet_lemmatizer = WordNetLemmatizer()
+        self.regex_tokenizer = RegexpTokenizer(r'\w+')
 
     def compare_words(self, word1, word2):
         if word1 == word2:
@@ -22,6 +31,9 @@ class Similarity_Analyser():
 
         return average / len(word1.split())
 
+    def transform_string(word_string):
+        word_list = self.regex_tokenizer.tokenize(word_string)
+        return ' '.join([ self.wordnet_lemmatizer.lemmatize(word) for word in word_list if word.lower() not in stopwords.words('english')])
 
 def loadGloveModel(gloveFile):
     f = open(gloveFile,'r')

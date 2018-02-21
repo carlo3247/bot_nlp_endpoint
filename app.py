@@ -29,11 +29,16 @@ class document():
 def predict_label(question):
     return label_model.predict([question])[0]
 
-mock_documents = [ document('1','test_document','some_date',['String'])]
+mock_documents = [
+                    document('21017208','Traded services to schools','20th September 2017',['service currently offer school authority support meet early help duty requirement including dedicated casework supervision online training practitioner forum', 'current timeframe receipt referral Early Help allocation Early Help Officer Worker']),
+                    document('21050346','Schools Music and Drama Teaching','21st September 2017',['number hour music teaching per week given year 4 pupil school authority']),
+                    document('21016748','Children referred to Channel','3rd August 2017',['many school pupil referred Channel since July 2015', 'proportion total number pupil subject action following referral Channel', 'proportion total number pupil referred Channel subject action', 'proportion total number pupil referred Channel Muslim']),
+                    document('FOI10056','Spend on agency staff','08 November 2017',['value spend temporary staff recruitment agency Council 2016 2017', 'contract manage provide supply agency temporary staff let', 'contract manage provide supply temporary agency staff commence long run end date']),
+                 ]
 
 def analyse_question(question):
     # should return tuple of document lists: first one good matches, second maybe matches
-
+    question = similarity_analyser.transform_string(question)
     good = []
     maybe = []
     for document in mock_documents:
@@ -46,7 +51,7 @@ def analyse_question(question):
             elif temp_predict > maybe_match:
                 maybe.append(document)
 
-    return (good, maybe) 
+    return (good, maybe)
 
 
 @app.route('/predict', methods = ['POST'])
@@ -55,7 +60,7 @@ def apicall():
     request_json = request.get_json(force=True)
 
 #    print(request_json['question'], file=sys.stderr)
-    
+
     question = request_json['question']
     matching_documents = analyse_question(question)
     print(matching_documents[0])
@@ -66,7 +71,7 @@ def apicall():
     response_data = {
       "direct_answer": "",
       "good_match": good_matches,
-      "possible_match" : maybe_matches, 
+      "possible_match" : maybe_matches,
       "label": predicted_label,
     }
 
