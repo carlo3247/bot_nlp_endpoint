@@ -10,8 +10,8 @@ import sys
 label_model = pickle.load(open('label_model', 'rb'))
 similarity_model = Similarity_Analyser('glove.6b.50d.txt')
 
-good_match = 0.6
-maybe_match = 0.4
+good_match = 0.8
+maybe_match = 0.6
 
 app = Flask(__name__)
 
@@ -38,18 +38,20 @@ mock_documents = [
 
 def analyse_question(question):
     # should return tuple of document lists: first one good matches, second maybe matches
-    question = similarity_analyser.transform_string(question)
+    question = similarity_model.transform_string(question)
     good = []
     maybe = []
     for document in mock_documents:
         for current_question in document.questions:
-            print('{}\n{}\n\n'.format(question, current_question), file=sys.stderr)
+            print('{}\n{}'.format(question, current_question), file=sys.stderr)
             temp_predict = similarity_model.compare_sentences(question, current_question)
-            print('predict: {}'.format(temp_predict), file=sys.stderr)
+            print('predict: {}\n\n'.format(temp_predict), file=sys.stderr)
             if temp_predict > good_match:
-                good.append(document)
+                if document not in good:
+                    good.append(document)
             elif temp_predict > maybe_match:
-                maybe.append(document)
+                if document not in maybe:
+                    maybe.append(document)
 
     return (good, maybe)
 

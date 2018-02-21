@@ -1,5 +1,6 @@
 import numpy as np
 
+import nltk
 from nltk import tokenize
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
@@ -29,9 +30,9 @@ class Similarity_Analyser():
                 temp_max = max(temp_max, self.compare_words(word1, word2))
             average += temp_max
 
-        return average / len(word1.split())
+        return average / len(sentence1.split())
 
-    def transform_string(word_string):
+    def transform_string(self, word_string):
         word_list = self.regex_tokenizer.tokenize(word_string)
         return ' '.join([ self.wordnet_lemmatizer.lemmatize(word) for word in word_list if word.lower() not in stopwords.words('english')])
 
