@@ -64,8 +64,11 @@ def apicall():
 #    print(request_json['question'], file=sys.stderr)
 
     question = request_json['question']
+    print('------------------')
+    print('Analysing new request:\n')
     matching_documents = analyse_question(question)
-    print(matching_documents[0])
+    print('matching documents: good - {} maybe - {}'.format(len(matching_documents[0]), len(matching_documents[1])))
+    print('------------------')
     good_matches = [x.convert_json() for x in matching_documents[0]]
     maybe_matches = [x.convert_json() for x in matching_documents[1]]
     predicted_label = predict_label(question)

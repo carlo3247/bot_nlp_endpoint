@@ -1,1 +1,3 @@
 glove.6B.50d.txt
+*.pyc
+__pycache__/
