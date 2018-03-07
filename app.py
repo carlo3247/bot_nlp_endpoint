@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import Response, request
+from flask_sqlalchemy import SQLAlchemy
 
 import json
 import pickle
@@ -14,27 +15,43 @@ good_match = 0.8
 maybe_match = 0.6
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-class document():
-    def __init__(self, reference, title, date, questions):
-        self.reference = reference
-        self.title = title
-        self.date = date
-        self.questions = questions
+#class document():
+#    def __init__(self, reference, title, date, questions):
+#        self.reference = reference
+#        self.title = title
+#        self.date = date
+#
+#        self.questions = questions
+#    def convert_json(self):
+#        converted = { "reference": self.reference, "title": self.title, "date": self.date }
+#        return converted
 
-    def convert_json(self):
-        converted = { "reference": self.reference, "title": self.title, "date": self.date }
-        return converted
+class Document(db.Model):
+    reference = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(80), unique=True, nullable=False)
+    keywords = db.Column(db.String(120), unique=True, nullable=False)
+    questions = db.relationship('Question', backref=db.backref('questions', lazy=True))
+
+    def __repr__(self):
+        return '<Document %r>' % self.reference
+
+class Question(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    question = db.Column(db.String(120), nullable=False)
+
+#mock_documents = [
+#                    document('21017208','Traded services to schools','20th September 2017',['service currently offer school authority support meet early help duty requirement including dedicated casework supervision online training practitioner forum', 'current timeframe receipt referral Early Help allocation Early Help Officer Worker']),
+#                    document('21050346','Schools Music and Drama Teaching','21st September 2017',['number hour music teaching per week given year 4 pupil school authority']),
+#                    document('21016748','Children referred to Channel','3rd August 2017',['many school pupil referred Channel since July 2015', 'proportion total number pupil subject action following referral Channel', 'proportion total number pupil referred Channel subject action', 'proportion total number pupil referred Channel Muslim']),
+#                    document('FOI10056','Spend on agency staff','08 November 2017',['value spend temporary staff recruitment agency Council 2016 2017', 'contract manage provide supply agency temporary staff let', 'contract manage provide supply temporary agency staff commence long run end date']),
+#                 ]
 
 def predict_label(question):
     return label_model.predict([question])[0]
-
-mock_documents = [
-                    document('21017208','Traded services to schools','20th September 2017',['service currently offer school authority support meet early help duty requirement including dedicated casework supervision online training practitioner forum', 'current timeframe receipt referral Early Help allocation Early Help Officer Worker']),
-                    document('21050346','Schools Music and Drama Teaching','21st September 2017',['number hour music teaching per week given year 4 pupil school authority']),
-                    document('21016748','Children referred to Channel','3rd August 2017',['many school pupil referred Channel since July 2015', 'proportion total number pupil subject action following referral Channel', 'proportion total number pupil referred Channel subject action', 'proportion total number pupil referred Channel Muslim']),
-                    document('FOI10056','Spend on agency staff','08 November 2017',['value spend temporary staff recruitment agency Council 2016 2017', 'contract manage provide supply agency temporary staff let', 'contract manage provide supply temporary agency staff commence long run end date']),
-                 ]
 
 def analyse_question(question):
     # should return tuple of document lists: first one good matches, second maybe matches
@@ -45,7 +62,7 @@ def analyse_question(question):
         for current_question in document.questions:
             print('{}\n{}'.format(question, current_question), file=sys.stderr)
             temp_predict = similarity_model.compare_sentences(question, current_question)
-            print('predict: {}\n\n'.format(temp_predict), file=sys.stderr)
+            print('predict: {}'.format(temp_predict), file=sys.stderr)
             if temp_predict > good_match:
                 if document not in good:
                     good.append(document)

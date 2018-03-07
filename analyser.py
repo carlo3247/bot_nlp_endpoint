@@ -9,8 +9,8 @@ from nltk.stem import WordNetLemmatizer
 class Similarity_Analyser():
     def __init__(self, gloveFile):
         self.model = loadGloveModel(gloveFile)
-        nltk.download('stopwords')
-        nltk.download('wordnet')
+#        nltk.download('stopwords')
+#        nltk.download('wordnet')
         self.wordnet_lemmatizer = WordNetLemmatizer()
         self.regex_tokenizer = RegexpTokenizer(r'\w+')
 
@@ -23,6 +23,8 @@ class Similarity_Analyser():
             return 0
 
     def compare_sentences(self, sentence1, sentence2):
+        if len(sentence1) is 0 or len(sentence2) is 0:
+            return 0
         average = 0
         for word1 in sentence1.split():
             temp_max = 0
