@@ -7,9 +7,6 @@ from analyser import Similarity_Analyser
 
 import sys
 
-label_model = pickle.load(open('label_model', 'rb'))
-similarity_model = Similarity_Analyser('glove.6b.50d.txt')
-
 good_match = 0.8
 maybe_match = 0.6
 
@@ -26,15 +23,26 @@ class document():
         converted = { "reference": self.reference, "title": self.title, "date": self.date }
         return converted
 
+
+def load_json_data(path):
+    data = []
+    with open(path) as json_file:
+       json_data = json.load(json_file) 
+       for entry in json_data['documents']:
+           data.append(document(entry['reference'], entry['title'],entry['date'],entry['questions']))
+    return data
+
+# using the trained SVM to predict a question
 def predict_label(question):
+    # TODO retrain model using stemming or something
     return label_model.predict([question])[0]
 
-mock_documents = [
-                    document('21017208','Traded services to schools','20th September 2017',['service currently offer school authority support meet early help duty requirement including dedicated casework supervision online training practitioner forum', 'current timeframe receipt referral Early Help allocation Early Help Officer Worker']),
-                    document('21050346','Schools Music and Drama Teaching','21st September 2017',['number hour music teaching per week given year 4 pupil school authority']),
-                    document('21016748','Children referred to Channel','3rd August 2017',['many school pupil referred Channel since July 2015', 'proportion total number pupil subject action following referral Channel', 'proportion total number pupil referred Channel subject action', 'proportion total number pupil referred Channel Muslim']),
-                    document('FOI10056','Spend on agency staff','08 November 2017',['value spend temporary staff recruitment agency Council 2016 2017', 'contract manage provide supply agency temporary staff let', 'contract manage provide supply temporary agency staff commence long run end date']),
-                 ]
+#mock_documents = [
+#                    document('21017208','Traded services to schools','20th September 2017',['service currently offer school authority support meet early help duty requirement including dedicated casework supervision online training practitioner forum', 'current timeframe receipt referral Early Help allocation Early Help Officer Worker']),
+#                    document('21050346','Schools Music and Drama Teaching','21st September 2017',['number hour music teaching per week given year 4 pupil school authority']),
+#                    document('21016748','Children referred to Channel','3rd August 2017',['many school pupil referred Channel since July 2015', 'proportion total number pupil subject action following referral Channel', 'proportion total number pupil referred Channel subject action', 'proportion total number pupil referred Channel Muslim']),
+#                    document('FOI10056','Spend on agency staff','08 November 2017',['value spend temporary staff recruitment agency Council 2016 2017', 'contract manage provide supply agency temporary staff let', 'contract manage provide supply temporary agency staff commence long run end date']),
+#                 ]
 
 def analyse_question(question):
     # should return tuple of document lists: first one good matches, second maybe matches
@@ -87,6 +95,9 @@ def apicall():
     return resp
 
 if __name__ == '__main__':
+    label_model = pickle.load(open('label_model', 'rb'))
+    similarity_model = Similarity_Analyser('glove.6b.50d.txt')
+    mock_documents = load_json_data('data.json')
     app.run(host='0.0.0.0', debug=True)
 
 
