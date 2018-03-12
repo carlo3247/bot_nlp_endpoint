@@ -74,9 +74,12 @@ def apicall():
 
     return resp
 
+
+# setup global variables
+# load the pretrained SVM (trained on email data)
+label_model = pickle.load(open('label_model', 'rb'))
+similarity_model = Similarity_Analyser('glove.6b.50d.txt')
+mock_documents = load_json_data('data.json')
+
 if __name__ == '__main__':
-    # load the pretrained SVM (trained on email data)
-    label_model = pickle.load(open('label_model', 'rb'))
-    similarity_model = Similarity_Analyser('glove.6b.50d.txt')
-    mock_documents = load_json_data('data.json')
     app.run(host='0.0.0.0', debug=True)
