@@ -32,6 +32,7 @@ class Db_Manager():
         return data
 
     def find_matching_keywords(self, question):
+        question = self.analyser.transform_string(question)
         matching = []
         for entry in self.documents:
             for current_question in entry.questions:
@@ -41,25 +42,39 @@ class Db_Manager():
                         matching.append(entry)
                         break
 
+        return sorted(matching, reverse=True)
+
     def find_matching_similarity_only(self, question):
+        question = self.analyser.transform_string(question)
         good = []
         maybe = []
         for entry in self.documents:
+
+
             for current_question in entry.questions:
                 predict = self.analyser.compare_sentences(question, current_question)
+
+
                 print('-\n{}\n{}\n-\n'.format(current_question, predict), file=sys.stderr)
                 if predict > good_match:
                     if entry not in good:
-                        good.append(entry)
+                        good.append((predict, entry))
                         break
                 elif predict > maybe_match:
                     if entry not in maybe and entry not in good:
-                        maybe.append(entry)
+                        maybe.append((predict, entry))
                         break
+        
+        #sort  arrays
+        if good:
+            _, good = zip(*sorted(good, reverse=True))
+        if maybe:
+            _, maybe = zip(*sorted(maybe, reverse=True))
 
         return (good, maybe)
 
     def find_matching_similarity(self, question):
+        question = self.analyser.transform_string(question)
         good = []
         maybe = []
         for entry in self.documents:
@@ -76,6 +91,12 @@ class Db_Manager():
                         if entry not in maybe and entry not in good:
                             maybe.append(entry)
                             break
+
+        #sort  arrays
+        if good:
+            _, good = zip(*sorted(good, reverse=True))
+        if maybe:
+            _, maybe = zip(*sorted(maybe, reverse=True))
 
         return (good, maybe)
 
