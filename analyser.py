@@ -68,7 +68,7 @@ class Similarity_Analyser():
     # for performance resasons the lemmatization can be replaced by stemming
     def transform_string(self, word_string):
         word_list = self.regex_tokenizer.tokenize(word_string)
-        return ' '.join([ self.wordnet_lemmatizer.lemmatize(word) for word in word_list if word.lower() not in stopwords.words('english')])
+        return ' '.join([ self.wordnet_lemmatizer.lemmatize(word.lower()) for word in word_list if word.lower() not in stopwords.words('english')])
 
 def loadGloveModel(gloveFile):
     f = open(gloveFile,'r')
