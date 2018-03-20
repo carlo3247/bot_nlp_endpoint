@@ -20,7 +20,8 @@ def apicall():
     request_json = request.get_json(force=True)
     question = request_json['question']
     #returns a tuple of good matches and maybe matches
-    matching_documents = db_manager.find_matching_similarity(question)
+#    matching_documents = db_manager.find_matching_similarity(question)
+    matching_documents = db_manager.find_matching_similarity_only(question)
 
     good_matches = [x.convert_json() for x in matching_documents[0]]
     maybe_matches = [x.convert_json() for x in matching_documents[1]]
